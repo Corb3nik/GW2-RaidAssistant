@@ -1,0 +1,9 @@
+version: "2.4"
+services:
+  bot:
+    build: .
+    volumes:
+      - db-data:/app/db
+
+volumes:
+  db-data:
