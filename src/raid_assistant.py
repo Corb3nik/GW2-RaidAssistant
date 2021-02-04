@@ -63,7 +63,12 @@ class RaidAssistant(discord.ext.commands.Bot):
         if not solution:
             curr_raid_info.composition = "Failed. Could not generate a team composition."
         else:
-            entries = [ "{} {}".format(key, user_id) for key, user_id in solution.items() ]
+            entries = []
+            for key, user_id in solution.items():
+                if "Missing player" in user_id:
+                    user_id = ""
+
+                entries += ["{} {}".format(key, user_id)]
             curr_raid_info.composition = '\n'.join(sorted(entries))
 
         new_embed = RaidEmbed(curr_raid_info)
