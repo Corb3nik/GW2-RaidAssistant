@@ -1,4 +1,5 @@
 import discord
+from discord import Emoji
 import os
 from collections import defaultdict
 from views.raid_embed import RaidEmbed
@@ -14,11 +15,6 @@ class RaidAssistant(discord.ext.commands.Bot):
 
     async def on_ready(self):
         print("Logged in as {}!".format(self.user))
-
-    def should_process_reaction(self, payload):
-        return payload.user_id != self.user.id and \
-            payload.emoji.name == SUBMIT_REACTION and \
-            Raid.get_or_none(Raid.message_id == payload.message_id)
 
     async def get_user_raid_roles(self, message):
         raid_roles_per_user = defaultdict(list)
@@ -46,9 +42,20 @@ class RaidAssistant(discord.ext.commands.Bot):
 
     async def on_raw_reaction_add(self, payload):
 
-        if not self.should_process_reaction(payload):
+        if payload.user_id == self.user.id:
             return
 
+        raid: Raid = Raid.get_or_none(Raid.message_id == payload.message_id)
+        if not raid:
+            return
+
+        if payload.emoji.name == SUBMIT_REACTION:
+            await self.find_composition(payload)
+
+        if payload.emoji.name == ALARM_CLOCK and raid.organiser_id == str(payload.user_id):
+            await self.wakeup(payload)
+
+    async def find_composition(self, payload):
         channel = await self.fetch_channel(payload.channel_id)
         message = await channel.fetch_message(payload.message_id)
         curr_raid_info = Raid.get_or_none(Raid.message_id == message.id)
@@ -79,6 +86,21 @@ class RaidAssistant(discord.ext.commands.Bot):
         await message.edit(embed=new_embed)
 
         curr_raid_info.save()
+
+    async def wakeup(self, payload):
+        channel = await self.fetch_channel(payload.channel_id)
+        message: discord.Message = await channel.fetch_message(payload.message_id)
+        users = set()
+        for reaction in message.reactions:
+            emoji = reaction.emoji
+            custom = isinstance(emoji, Emoji) and emoji.name == "headcount"
+            is_raised_hands = emoji == RAISED_HANDS
+            if custom or is_raised_hands:
+                async for user in reaction.users():
+                    if user.id != self.user.id:
+                        users.add(user.mention)
+
+        await channel.send("{} wake up buttercup(s) we're raiding".format(", ".join(users)))
 
 
 if __name__ == '__main__':

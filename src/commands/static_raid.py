@@ -10,7 +10,8 @@ async def static_raid(ctx, description=None, time=None):
     Create a new raid announcement for the static
     """
 
-    new_raid = Raid(description=description, time=time, composition=None)
+    new_raid = Raid(organiser_id=ctx.author.id, description=description,
+                    time=time, composition=None)
 
     embed = StaticRunEmbed(new_raid)
     message = await ctx.send("", embed=embed)

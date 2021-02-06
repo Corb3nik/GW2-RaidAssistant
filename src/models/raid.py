@@ -5,6 +5,7 @@ from peewee import TextField, DateTimeField
 
 class Raid(BaseModel):
     message_id = TextField()
+    organiser_id = TextField()
 
     description = TextField(null=True)
     time = TextField(null=True)
