@@ -4,6 +4,8 @@ services:
     build: .
     volumes:
       - db-data:/app/db
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
 
 volumes:
   db-data:
