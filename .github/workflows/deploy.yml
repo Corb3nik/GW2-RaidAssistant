@@ -1,0 +1,22 @@
+on:
+  release:
+    types: ['published']
+
+name: Deploy
+jobs:
+  hTTPClient:
+    name: HTTP client
+    runs-on: ubuntu-latest
+    steps:
+    - name: HTTP client
+      uses: swinton/httpie.action@69125d73caa2c6821f6a41a86112777a37adc171
+      env:
+        DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
+        WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        GITHUB_REF: ${{ github.ref }}
+        GITHUB_REPO: ${{ github.repository }}
+      with:
+        args: --timeout 1800 --form POST "$DEPLOY_URL" "X-WEBHOOK-SECRET:$WEBHOOK_SECRET"
+              "ref=$GITHUB_REF" "environ='GITHUB_TOKEN=$GITHUB_TOKEN|SECRET_KEY_BASE=$SECRET_KEY_BASE|DISCORD_BOT_TOKEN=$DISCORD_BOT_TOKEN|REPO=$GITHUB_REPO'"
