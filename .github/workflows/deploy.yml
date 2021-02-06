@@ -13,8 +13,8 @@ jobs:
       env:
         DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE }}
         WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }} 
         GITHUB_REF: ${{ github.ref }}
         GITHUB_REPO: ${{ github.repository }}
       with:
