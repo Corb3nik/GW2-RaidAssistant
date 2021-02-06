@@ -3,13 +3,15 @@ import os
 from collections import defaultdict
 from views.raid_embed import RaidEmbed
 from core.constraint_solver import ConstraintSolver
-from core.constants  import *
-from commands import create_raid
+from core.constants import *
+from commands import create_raid, static_raid
 from models import *
+
 
 class RaidAssistant(discord.ext.commands.Bot):
 
     raid_messages = {}
+
     async def on_ready(self):
         print("Logged in as {}!".format(self.user))
 
@@ -31,11 +33,13 @@ class RaidAssistant(discord.ext.commands.Bot):
                 if user.id == self.user.id:
                     continue
 
-                raid_roles_per_user[user.name] = raid_roles_per_user[user.name] + [reaction.emoji]
+                raid_roles_per_user[user.name] = raid_roles_per_user[user.name] + \
+                    [reaction.emoji]
 
         missing_player_id = 1
         while len(raid_roles_per_user) < SQUAD_LIMIT:
-            raid_roles_per_user["Missing player #{}".format(missing_player_id)] = ROLE_REACTIONS
+            raid_roles_per_user["Missing player #{}".format(
+                missing_player_id)] = ROLE_REACTIONS
             missing_player_id += 1
 
         return raid_roles_per_user
@@ -76,11 +80,13 @@ class RaidAssistant(discord.ext.commands.Bot):
 
         curr_raid_info.save()
 
+
 if __name__ == '__main__':
 
     # Initialize database
     BaseModel._meta.database.create_tables([Raid])
 
     bot = RaidAssistant(command_prefix='!raid ')
+    bot.add_command(static_raid)
     bot.add_command(create_raid)
     bot.run(os.environ['DISCORD_BOT_TOKEN'])
