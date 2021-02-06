@@ -1,3 +1,4 @@
 *.pyc
 src/data
 src/db/data.db
+db/data.db
