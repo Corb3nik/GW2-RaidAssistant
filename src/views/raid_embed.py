@@ -3,7 +3,7 @@ from discord import Color, Embed
 
 class RaidEmbed(Embed):
 
-    default_description = "react for headcount"
+    default_description = "React for headcount"
     default_time = "Daily Reset + 1"
 
     description_template = """
