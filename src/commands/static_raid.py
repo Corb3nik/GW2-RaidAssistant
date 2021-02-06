@@ -11,7 +11,7 @@ async def static_raid(ctx, description=None, time=None):
     """
 
     new_raid = Raid(organiser_id=ctx.author.id, description=description,
-                    time=time, composition=None)
+                    time=time, composition=None, static=True)
 
     embed = StaticRunEmbed(new_raid)
     message = await ctx.send("", embed=embed)

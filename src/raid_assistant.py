@@ -2,7 +2,7 @@ import discord
 from discord import Emoji
 import os
 from collections import defaultdict
-from views.raid_embed import RaidEmbed
+from views.static_run_embed import StaticRunEmbed
 from core.constraint_solver import ConstraintSolver
 from core.constants import *
 from commands import create_raid, static_raid
@@ -49,11 +49,12 @@ class RaidAssistant(discord.ext.commands.Bot):
         if not raid:
             return
 
-        if payload.emoji.name == SUBMIT_REACTION:
-            await self.find_composition(payload)
-
-        if payload.emoji.name == ALARM_CLOCK and raid.organiser_id == str(payload.user_id):
-            await self.wakeup(payload)
+        if raid.static:
+            if payload.emoji.name == SUBMIT_REACTION:
+                await self.find_composition(payload)
+        else:
+            if payload.emoji.name == ALARM_CLOCK and raid.organiser_id == str(payload.user_id):
+                await self.wakeup(payload)
 
     async def find_composition(self, payload):
         channel = await self.fetch_channel(payload.channel_id)
@@ -62,7 +63,7 @@ class RaidAssistant(discord.ext.commands.Bot):
 
         # Intermediate loading message
         curr_raid_info.composition = "Calculating..."
-        new_embed = RaidEmbed(curr_raid_info)
+        new_embed = StaticRunEmbed(curr_raid_info)
         await message.edit(embed=new_embed)
 
         raid_roles_per_user = await self.get_user_raid_roles(message)
@@ -82,7 +83,7 @@ class RaidAssistant(discord.ext.commands.Bot):
                 entries += ["{} {}".format(key, user_id)]
             curr_raid_info.composition = '\n'.join(sorted(entries))
 
-        new_embed = RaidEmbed(curr_raid_info)
+        new_embed = StaticRunEmbed(curr_raid_info)
         await message.edit(embed=new_embed)
 
         curr_raid_info.save()

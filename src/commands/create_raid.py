@@ -12,7 +12,7 @@ async def create_raid(ctx, title=None, description=None, time=None):
     """
 
     new_raid = Raid(organiser_id=ctx.author.id, description=description,
-                    time=time, composition=None)
+                    time=time, composition=None, static=False)
 
     embed = RaidEmbed(title, description, time)
     message = await ctx.send("", embed=embed)
