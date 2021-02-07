@@ -10,6 +10,5 @@ class Raid(BaseModel):
 
     description = TextField(null=True)
     time = TextField(null=True)
-    composition = TextField(null=True)
 
     created_date = DateTimeField(default=datetime.datetime.now)

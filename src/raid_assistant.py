@@ -62,28 +62,19 @@ class RaidAssistant(discord.ext.commands.Bot):
         curr_raid_info = Raid.get_or_none(Raid.message_id == message.id)
 
         # Intermediate loading message
-        curr_raid_info.composition = "Calculating..."
         new_embed = StaticRunEmbed(curr_raid_info)
+        new_embed.set_as_calculating()
         await message.edit(embed=new_embed)
 
+        # Find a valid composition
         raid_roles_per_user = await self.get_user_raid_roles(message)
-
         solver = ConstraintSolver(ROLE_REACTIONS, raid_roles_per_user)
         solutions = solver.get_solutions()
         solution = next(solutions, None)
 
+        new_embed = StaticRunEmbed(curr_raid_info, solution, raid_roles_per_user)
         if not solution:
-            curr_raid_info.composition = "Failed. Could not generate a team composition."
-        else:
-            entries = []
-            for key, user_id in solution.items():
-                if "Missing player" in user_id:
-                    user_id = ""
-
-                entries += ["{} {}".format(key, user_id)]
-            curr_raid_info.composition = '\n'.join(sorted(entries))
-
-        new_embed = StaticRunEmbed(curr_raid_info)
+            new_embed.set_as_failed()
         await message.edit(embed=new_embed)
 
         curr_raid_info.save()
