@@ -30,7 +30,6 @@ class ConstraintSolver:
         self.players = player_constraints
         self.solution = reduce(lambda x, y: x * y, self.values_by_role.values())
 
-
     def get_solutions(self):
         solver = z3.Solver()
         player_vars = []
@@ -43,6 +42,7 @@ class ConstraintSolver:
             solver.add(z3.Or([player_var == self.values_by_role[role] for role in roles]))
 
         # Set a constraint where each role must be used exactly once
+        solver.add(z3.Distinct(player_vars))
         solver.add(reduce(lambda x, y: x * y, player_vars) == self.solution)
 
         # Iterate over all solutions
